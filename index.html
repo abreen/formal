@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- jQuery -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    
+    <!-- Form error handling -->
+    <script type="text/javascript">
+      $(document).ready(function() {
+        // Replace form button
+        $('#submit').replaceWith('<input type="button" onclick="submitForm();" value="Send">');
+      });
+
+      function submitForm() {
+        // Remove error messages from last time (if any)
+        $('#form').find('.error').remove();
+        
+        // Send the form data
+        $.post('json_handler.php', $('#form').serialize(), function(data) {
+          var response = jQuery.parseJSON(data);
+          
+          // Check for validation errors
+          if (response.status == 'invalid') {
+            for (i in response.errors) {
+              $('#form #' + response.errors[i].field).after('<span class="error">' + response.errors[i].msg + '</span>');
+            }
+          }
+          
+          if (response.status == 'sent')
+            $('#form').append('<p>Sent! Thank you.</p>');
+            
+          if (response.status == 'failed')
+            $('#form').append('<p>There was an error. Your message was not sent. </p>');
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <form action="php_handler.php" method="post" id="form">
+      <fieldset>
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name">
+        
+        <label for="email">E-mail address</label>
+        <input type="email" name="email" id="email">
+        
+        <label for="message">Message</label>
+        <textarea name="message" id="message" rows="3"></textarea>
+        
+        <input type="submit" id="submit" value="Send">
+      </fieldset>
+    </form>
+  </body>
+</html>
